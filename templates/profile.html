@@ -1,0 +1,374 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>Blog Website: {{ user.username }}'s Profile</title>
+<link rel="stylesheet" href="/static/css/main.css">
+<link rel="stylesheet" href="/static/css/profile.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="container profile-container">
+    {% if request.user == user %}
+    <section class="profile-header">
+        <h1>Welcome, {{ user.username }}!</h1>
+        <p>This is your personal profile page.</p>
+    </section>
+    {%endif%}
+
+    <section class="profile-details">
+        <h2>{% if request.user == user %}Your{%else%}{{user.username}} {%endif%} Profile Information</h2>
+        <div class="profile-card">
+            <img src="{{ profile.image.url }}" class="avatar" alt="{{ user.username }}'s avatar">
+            <div id="profile_info" class="profile-info">
+                <p><strong>Username:</strong> {{ user.username }}</p>
+                {% if request.user == user%}
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>First name:</strong> {{ user.first_name|default:"Not provided" }}</p>
+                <p><strong>Last name:</strong> {{ user.last_name|default:"Not provided" }}</p>
+                <p><strong>Newsletter subscription:</strong> {% if profile.newsletter_subscription %} On {%else%} Off
+                    {%endif%}</p>
+                {%endif%}
+                <p><strong>Bio:</strong> {{ profile.bio|default:"No bio yet."|linebreaksbr }}</p>
+            </div>
+
+            {%if request.user == user%}
+            <!-- Edit mod -->
+            <div id="edit_profile" class="profile_input">
+                <div class="edit_grup">
+                    <label for="edit_username">Username:</label>
+                    <input type="text" id="edit_username" value="{{user.username}}" placeholder="Enter new username...">
+                </div>
+
+                <div class="edit_grup">
+                    <label for="edit_email">Email:</label>
+                    <input type="email" id="edit_email" value="{{user.email}}" placeholder="Enter new email..."
+                        class="profile-email">
+                </div>
+
+                <div class="edit_grup">
+                    <label for="edit_first_name">First name:</label>
+                    <input type="text" id="edit_first_name" value="{{user.first_name}}"
+                        placeholder="Enter new first name..." class="profile-name">
+                </div>
+
+                <div class="edit_grup">
+                    <label for="edit_last_name">Last name:</label>
+                    <input type="text" id="edit_last_name" value="{{user.last_name}}"
+                        placeholder="Enter new last name..." class="profile-name">
+                </div>
+
+                <div class="edit_grup">
+                    <label for="edit_bio">Bio:</label>
+                    <textarea id="edit_bio" class="profile-bio"
+                        placeholder="Enter something about yourself...">{{user.profile.bio}}</textarea>
+                </div>
+
+            </div>
+
+            <!-- buttons -->
+            <div class="se_buttons">
+                <button id="edit_profile_btn" class="edit_profile_btn">
+                    <h1>Edit Profile</h1>
+                </button>
+                <button id="save_changes_btn" class="edit_profile_btn" style="display: none;">
+                    <h1>Save Changes</H1>
+                </button>
+                <button id="cancel_btn" class="edit_profile_btn" style="display: none;">
+                    <h1>Cancel</H1>
+                </button>
+            </div>
+            {%endif%}
+        </div>
+    </section>
+
+    {%if request.user == user%}
+    <div class="posts_selector">
+        <button id="user_post_btn" class="active">
+            Your Posts
+        </button>
+        <button id="user_saved_post_btn">
+            Your Saved Posts
+        </button>
+    </div>
+    {%else%}
+    <div class="posts_selector">
+        <h2 class="user_posts_title">{{user.username}} Posts:</h2>
+    </div>
+    {%endif%}
+
+    {% if request.user == user %}
+    <div id="saved-posts" class="posts_list">
+        <div class="blogs-list">
+            {% for s_post in s_posts %}
+            <div class="blog" id="saved_post">
+                <button class="bookmark" data-post-id="{{s_post.post.id}}">
+
+                    <svg class="bookmark-saved" viewBox="0 0 24 24" width="25" height="25" fill="none"
+                        xmlns="http://www.w3.org/2000/svg" transform="matrix(1, 0, 0, 1, 0, 0)">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC"
+                            stroke-width="0.192"></g>
+                        <g id="SVGRepo_iconCarrier">
+                            <path
+                                d="M9 10.5L11 12.5L15.5 8M19 21V7.8C19 6.11984 19 5.27976 18.673 4.63803C18.3854 4.07354 17.9265 3.6146 17.362 3.32698C16.7202 3 15.8802 3 14.2 3H9.8C8.11984 3 7.27976 3 6.63803 3.32698C6.07354 3.6146 5.6146 4.07354 5.32698 4.63803C5 5.27976 5 6.11984 5 7.8V21L12 17L19 21Z"
+                                stroke="#FCF259" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            </path>
+                        </g>
+                    </svg>
+
+                </button>
+                <a href="{% url 'blog_entry' blog_id=s_post.id %}" class="blog_link">
+                    <div class="blog-header">
+                        {% if s_post.post.image %}
+                        <img src="{{ s_post.post.image.url }}" alt="{{ s_post.post.title }}">
+                        {% else %}
+                        <img src="/static/img/space.jpg" alt="Default blog image">
+                        {% endif %}
+                        <p class="blog-header-category">{{s_post.post.category.title}}</p>
+                    </div>
+
+                    <div class="blog-content">
+
+                        <h2 class="blog-title">{{s_post.blog.title}}</h2>
+
+                        <div class="blog-description">
+                            <p>{{s_post.content|safe}}</p>
+                        </div>
+                        <div class="blog-content-created">
+                            <p class="blog-content-created-date">{{s_post.post.created_at|date:"d/m/Y"}}</p>
+                            {% if s_post.user %}
+                            <p class="blog-content-created-author">{{s_post.post.user}}</p>
+                            {% else %}
+                            <p class="blog-content-created-author">unknown user</p>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </a>
+            </div>
+
+            {% endfor %}
+
+        </div>
+    </div>
+    {%endif%}
+
+
+    <div id="posts" class="posts_list">
+        <div class="blogs-list" id="user_posts">
+            {% for u_post in u_posts %}
+            <div class="blog">
+                <a href="{% url 'blog_entry' blog_id=u_post.id %}" class="blog_link">
+                    <div class="blog-header">
+                        {% if u_post.image %}
+                        <img src="{{ u_post.image.url }}" alt="{{ u_post.title }}">
+                        {% else %}
+                        <img src="/static/img/space.jpg" alt="Default blog image">
+                        {% endif %}
+                        <p class="blog-header-category">{{u_post.category.title}}</p>
+
+                    </div>
+
+                    <div class="blog-content">
+
+                        <h2 class="blog-title">{{u_post.title}}</h2>
+
+                        <div class="blog-description">
+                            <p>{{u_post.content|safe}}</p>
+                        </div>
+                        <div class="blog-content-created">
+                            <p class="blog-content-created-date">{{u_post.created_at|date:"d/m/Y"}}</p>
+                            <p class="blog-content-created-author">{% if request.user == user %}By you{%else%}
+                                {{user.username}} {%endif%}</p>
+                        </div>
+
+                    </div>
+                </a>
+
+                {%if request.user == user%}
+
+                <div class="post-btn">
+                    <a href="{% url 'update_entry' blog_id=u_post.id %}" class="post-update-btn">Update</a>
+                    <a href="{% url 'delete_blog_entry' blog_id=u_post.id %}" class="post-delite-btn">Delete</a>
+                </div>
+                {%endif%}
+            </div>
+
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+{%csrf_token%}
+
+<script>
+    function SvithUserPosts() {
+        const userPostsBlock = document.querySelector("#posts");
+        const userPostBtn = document.querySelector("#user_post_btn");
+        const userSavedPostBtn = document.querySelector("#user_saved_post_btn");
+        const savedUserPostsBlock = document.querySelector("#saved-posts");
+
+        userPostBtn.addEventListener("click", (e) => {
+            userPostsBlock.style.display = "block";
+            savedUserPostsBlock.style.display = "none";
+
+            userPostBtn.classList.add("active");
+            userSavedPostBtn.classList.remove("active");
+        })
+
+        userSavedPostBtn.addEventListener("click", (e) => {
+            userPostsBlock.style.display = "none";
+            savedUserPostsBlock.style.display = "block";
+
+            userPostBtn.classList.remove("active");
+            userSavedPostBtn.classList.add("active");
+        })
+    }
+
+    function EditProfile() {
+        const editBtn = document.querySelector("#edit_profile_btn");
+        const saveBtn = document.querySelector("#save_changes_btn");
+        const cancelBtn = document.querySelector("#cancel_btn");
+
+        const infoBlock = document.querySelector("#profile_info");
+        const inputBlock = document.querySelector("#edit_profile");
+
+        editBtn.addEventListener("click", () => {
+            infoBlock.style.display = "none";
+            editBtn.style.display = "none";
+
+            inputBlock.style.display = "block";
+            saveBtn.style.display = "block";
+            cancelBtn.style.display = "block";
+        });
+
+        cancelBtn.addEventListener("click", () => {
+            infoBlock.style.display = "block";
+            editBtn.style.display = "block";
+
+            inputBlock.style.display = "none";
+            saveBtn.style.display = "none";
+            cancelBtn.style.display = "none";
+        });
+
+
+    }
+
+    function SaveUserUpdate() {
+        const saveBtn = document.querySelector("#save_changes_btn");
+
+        const username = document.querySelector("#edit_username");
+        const email = document.querySelector("#edit_email");
+        const firstName = document.querySelector("#edit_first_name");
+        const lastName = document.querySelector("#edit_last_name");
+        const bio = document.querySelector("#edit_bio");
+
+
+        saveBtn.addEventListener("click", () => {
+            const new_data = {
+                username: username.value.trim(),
+                email: email.value.trim(),
+                first_name: firstName.value.trim(),
+                last_name: lastName.value.trim(),
+                bio: bio.value.trim(),
+            }
+
+            console.log(new_data);
+
+            const url = "{% url 'profile_update' %}"
+
+            try {
+                fetch(url, {
+                    method: "POST",
+                    body: JSON.stringify(new_data),
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("User updated:", data);
+                        if (data.sucsess) {
+                            console.log("Updated successfully!");
+                            updateUserDetails(data.user);
+                            const cancelBtn = document.querySelector("#cancel_btn");
+                            cancelBtn.click();
+
+                        } else {
+                            const error = data.error;
+                            console.log("Failed update user. Error:", error);
+                            alert(error);
+                        }
+                    });
+
+
+            }
+
+            catch (e) {
+                console.error("Error save user updates:", e);
+
+            }
+
+
+        });
+    };
+
+    function updateUserDetails(user) {
+        const htmlContent = `
+            
+            <h1 class="profile_username">${user.username}</h1>
+
+            <p class="profile_email">${user.email}</p>
+        
+            <p><strong>First name:</strong>${user.first_name}</p>
+            <p><strong>Last name:</strong>${user.last_name}</p>
+            
+            <p class="profile-bio"><strong>Bio:</strong>${user.bio}</p>
+            
+        `;
+
+        const profileInfo = document.querySelector(".profile-info");
+        profileInfo.innerHTML = htmlContent;
+    }
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const saveBtns = document.querySelectorAll(".bookmark")
+        saveBtns.forEach(saveBtn => {
+            saveBtn.addEventListener("click", (e) => {
+                const postId = saveBtn.dataset.postId;
+                const csfrToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                console.log("PostId: ", postId);
+                console.log("CSRF Token: ", csfrToken);
+
+                fetch(`/entry/${postId}/toggle_save/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": csfrToken,
+                        "Content-Type": "application/json"
+                    }
+                })
+                    .then(response => response.json())
+
+                    .then(data => {
+                        if (!data.isSaved) {
+                            saveBtn.parentElement.remove()
+
+                        }
+                    });
+
+            })
+        });
+
+        SvithUserPosts();
+        EditProfile();
+        SaveUserUpdate();
+
+    })
+</script>
+
+{% endblock %}

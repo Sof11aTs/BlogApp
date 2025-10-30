@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>Blog Website:Registration</title>
+<link rel="stylesheet" href="/static/css/main.css">
+<link rel="stylesheet" href="/static/css/registration.css">
+{% endblock %}
+{% block content %}
+
+<div class="conteiner">
+    <div class="other-option">
+        <h2>Already have an account?</h2>
+        <a href="{% url 'login' %}">Login</a>
+    </div>
+    <h1>Registration:</h1>
+    <form method="post" class="reg_form" action>
+        {% csrf_token %}
+        <h2>Obligated</h2>
+
+        {{form.username.as_field_group}}
+        {{form.email.as_field_group}}
+        {{form.password1.as_field_group}}
+        {{form.password2.as_field_group}}
+
+        <h2>Optional</h2>
+        
+        {{form.first_name.as_field_group}}
+        {{form.last_name.as_field_group}}
+        {{form.bio.as_field_group}}
+        
+
+        <button type="submit">Registrate</button>
+    </form>
+</div>
+
+
+{% endblock %}

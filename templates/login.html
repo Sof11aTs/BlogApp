@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>Blog Website:Login</title>
+<link rel="stylesheet" href="/static/css/main.css">
+<link rel="stylesheet" href="/static/css/registration.css">
+{% endblock %}
+{% block content %}
+
+<div class="conteiner">
+    <div class="other-option">
+        <h2>Don't have an account?</h2>
+        <a href="{% url 'registration' %}">Register now</a>
+    </div>
+    <h1>Login:</h1>
+    <form method="post" class="reg_form" action>
+        {% csrf_token %}
+
+        {{form.as_div}}
+
+        
+
+        <button type="submit">Login</button>
+    </form>
+</div>
+
+
+{% endblock %}
