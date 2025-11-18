@@ -11,7 +11,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = os.getenv("DEBUG")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["blogapp-v3sb.onrender.com/", "127.0.0.1", "localhost"]
 
 LOGIN_URL = "/login/"
 
